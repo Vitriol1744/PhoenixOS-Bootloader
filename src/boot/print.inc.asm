@@ -1,6 +1,7 @@
-bits 16
+%define endl 0xd, 0xa
 
 print_string:
+    pusha
     pushf
 .loop:
     lodsb ; load character pointed by si to al
@@ -10,6 +11,7 @@ print_string:
     jmp print_string.loop
 .done:
     popf
+    popa
     ret
 
 print_num:
