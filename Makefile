@@ -13,9 +13,13 @@ AS_FLAGS := $(INC_FLAGS)
 all:
 	mkdir -p $(BUILD_DIR)
 	$(AS) $(AS_FLAGS) $(SRC_DIR)/boot/stage1.asm -o $(BUILD_DIR)/stage1.o
+	$(AS) $(AS_FLAGS) $(SRC_DIR)/boot/stage2.asm -o $(BUILD_DIR)/stage2.o
+	cat $(BUILD_DIR)/stage1.o $(BUILD_DIR)/stage2.o > $(BUILD_DIR)/boot.bin
 
 run:
-	qemu-system-x86_64 $(BUILD_DIR)/stage1.o
+	qemu-system-x86_64 $(BUILD_DIR)/boot.bin
+debug:
+	qemu-system-x86_64 -S -s $(BUILD_DIR)/boot.bin
 
 .PHONY: clean
 clean:
