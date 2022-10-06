@@ -1,15 +1,8 @@
-%include 'print.asm'
-
 ; this function requires interrupts to be disabled
 ; OUT:
 ; ax: 1 if a20 is enabled, 0 otherwise
 ; AFFECTS: es, ds, di, si
-works: db "Works", 0x0
-
-still_works:
-    mov si, works
-    call print_string
-    ret
+%include 'print.asm'
 
 enable_a20:    
     call .keyboard_controller
@@ -22,7 +15,6 @@ enable_a20:
     je .exit
     call .fast_a20_gate
     call .check
-
 .exit:
     ret
 
@@ -87,8 +79,8 @@ enable_a20:
 .a20_bios_exit:
     ret
 
-.int_15ns_str: db "INT 0x15 extension is not supported!", endl, 0x0
-.bios_a20_failure_str: db "Failed to activate a20 gate using bios interrupt!", endl, 0x0
+.int_15ns_str: db "[BOOT]: INT 0x15 extension is not supported!", endl, 0x0
+.bios_a20_failure_str: db "[BOOT]: Failed to activate a20 gate using bios interrupt!", endl, 0x0
 
 .fast_a20_gate:
     in al, 0x92
