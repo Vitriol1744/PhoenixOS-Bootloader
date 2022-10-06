@@ -1,1 +1,7 @@
 ./build/
+
+*.bin
+
+__pycache__/
+
+build/
