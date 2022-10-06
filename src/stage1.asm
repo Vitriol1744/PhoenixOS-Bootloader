@@ -1,7 +1,8 @@
-bits 16
+use16
 org 0x7c00
 
-%define STAGE2_LOCATION 0x2000
+%define STAGE2_SEGMENT 0x0000
+%define STAGE2_OFFSET 0x7e00
 
 jmp short skip_bpb
 nop
@@ -26,7 +27,7 @@ ebr_drive_number: db 0
 ebr_reserved: db 0
 ebr_signature: db 0
 ebr_volume_id: dd 0
-ebr_volume_label: db '           ' ; 11 bytes
+ebr_volume_label: db 'PhoenixBoot' ; 11 bytes
 ebr_system_id: dq 0
 
 skip_bpb:
@@ -55,8 +56,8 @@ start:
     mov si, loading_stage2_str
     call print_string
 
-    mov al, dl
-    call print_num
+    mov bh, dl
+    ;TODO: call print_num
     mov al, 0xd
     call print_char
     mov al, 0xa
@@ -65,21 +66,37 @@ start:
     ; load stage2 into memory
 load_stage2:
     ; ES:BX - Data buffer where stage2 will be loaded
-    ; Physical address = (A * 0x10) + B
-    mov ax, STAGE2_LOCATION
+    mov ax, STAGE2_SEGMENT
     mov es, ax
-    xor bx, bx
+    mov bx, STAGE2_OFFSET
     
-    mov ah, 0x02 ; read sectors
-    mov al, 3 ; number of sectors to read
-    mov ch, 0 ; cylinder number
-    mov cl, 2 ; sector number
-    mov dh, 0 ; head number
-    ; dl is drive number
+    mov ah, 0x02    ; read sectors
+    mov al, 3       ; number of sectors to read
+    mov al, stage2_size / 512 + 1
+    mov ch, 0       ; cylinder number
+    mov cl, 2       ; sector number
+    mov dh, 0       ; head number
+    mov dl, [disk]  ; drive number
+    mov di, 3
 
+.disk_read:
+    pusha
     ;TODO: Check for 0x13 extension support
     int 0x13
+    popa
     jnc .done
+
+    call .disk_reset
+    dec di
+    test di, di
+    jnz .disk_read
+
+.disk_reset:
+    mov ah, 0x00
+    int 0x13
+    jc .error
+    ret
+
 ; carry flag set on error
 .error:
     mov si, load_stage2_failure_str
@@ -88,7 +105,7 @@ load_stage2:
 .done:
     mov si, load_stage2_success_str
     call print_string
-    jmp word STAGE2_LOCATION:0x0000
+    jmp word STAGE2_SEGMENT:STAGE2_OFFSET
     nop ; should not get here
 
 on_error:
@@ -98,10 +115,10 @@ on_error:
 
 %include 'print.asm'
 
-loading_stage2_str: db "Loading stage2 from disk ", 0x0
-bootloader_name: db "PhoenixOS Bootloader", endl, 0x0
-load_stage2_failure_str: db "Failed to load stage2", endl, 0x0
-load_stage2_success_str: db "Successfully loaded stage2", endl, 0x0
+loading_stage2_str: db "[BOOT]: Loading stage2 from disk ", 0x0
+bootloader_name: db "[BOOT]: PhoenixOS Bootloader - Stage One", endl, 0x0
+load_stage2_failure_str: db "[BOOT]: Failed to load stage2", endl, 0x0
+load_stage2_success_str: db "[BOOT]: Successfully loaded stage2 at 0x0000:0x7e00", endl, 0x0
 disk: db 0
 
 %if ($ - $$) > 510
@@ -110,3 +127,8 @@ disk: db 0
 
 times 510-($ - $$) db 0
 dw 0xaa55
+
+stage2_bin_start:
+incbin 'stage2.bin'
+stage2_bin_end:
+stage2_size equ (stage2_bin_end - stage2_bin_start)
