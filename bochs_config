@@ -1,7 +1,8 @@
 megs: 128
 romimage: file=/usr/share/bochs/BIOS-bochs-latest, address=0xfffe0000
 vgaromimage: file=/usr/share/bochs/VGABIOS-lgpl-latest
-floppya: 1_44=build/bootloader.bin, status=inserted
-boot: floppy
+ata0-master: type=disk, path=build/image.hdd, cylinders=1024, heads=4, spt=32
+boot: disk
 mouse: enabled=0
 display_library: x, options="gui_debug"
+magic_break: enabled=1
