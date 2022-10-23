@@ -6,10 +6,9 @@ org 0x7c00
 
 jmp short skip_bpb
 nop
-
 ; bios parameter block
 times 0x03-($ - $$) db 0
-bpb_oem_identifier: dq 0
+bpb_oem_identifier: db 'PhoenixB' ; 8 bytes
 bpb_bytes_per_sector: dw 512
 bpb_sectors_per_cluster: db 0
 bpb_reserved_sector_count: dw 0
@@ -113,7 +112,7 @@ on_error:
     int 0x16 ; wait for keypress
     jmp 0xffff:0 ; reboot
 
-%include 'print.asm'
+%include 'print.inc'
 
 loading_stage2_str: db "[BOOT]: Loading stage2 from disk ", 0x0
 bootloader_name: db "[BOOT]: PhoenixOS Bootloader - Stage One", endl, 0x0
@@ -121,8 +120,9 @@ load_stage2_failure_str: db "[BOOT]: Failed to load stage2", endl, 0x0
 load_stage2_success_str: db "[BOOT]: Successfully loaded stage2 at 0x0000:0x7e00", endl, 0x0
 disk: db 0
 
-%if ($ - $$) > 510
-    %fatal 'Bootloader code exceed 510 bytes!'
+; we don't want to overwrite partition table
+%if ($ - $$) > 446
+    %fatal 'Bootloader code exceed 446 bytes!'
 %endif
 
 times 510-($ - $$) db 0

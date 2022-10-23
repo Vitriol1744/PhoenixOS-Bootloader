@@ -95,6 +95,7 @@ def compile_files(build_dir: str, src_dir: str, flags: str, extension: str, file
 
     for file_to_compile in files_to_compile:
         os.chdir(build_dir)
+        file_to_compile = f'{src_dir}/{file_to_compile}'
         split = os.path.split(os.path.abspath(file_to_compile))
         dir = f'./{split[0].removeprefix(src_dir)}'
         filename = split[1]
