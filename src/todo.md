@@ -1,9 +1,7 @@
     ; Check presence of PCI, CPUID, MSRs
-    ; Enable and confirm enabled A20 line
     ; Load GDTR
     ; Inform BIOS of target processor mode
     ; Get memory map from BIOS
-    ; Locate kernel in filesystem
     ; Allocate memory to load kernel image
     ; Load kernel image into buffer
     ; Enable graphics mode
