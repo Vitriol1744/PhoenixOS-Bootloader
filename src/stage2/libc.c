@@ -23,7 +23,19 @@ int strcmp(const char* lhs, const char* rhs)
         ++rhs;
         ++lhs;
     }
-    if (*lhs != *rhs) return *lhs - *rhs;
+    if (*(lhs) != *(rhs)) return *lhs - *rhs;
+
+    return 0;
+}
+int strncmp(const char* lhs, const char* rhs, size_t n)
+{
+    while (*rhs == *lhs && n > 0)
+    {
+        ++rhs;
+        ++lhs;
+        --n;
+    }
+    if (*(lhs-1) != *(rhs-1)) return *lhs - *rhs;
 
     return 0;
 }
@@ -128,7 +140,7 @@ void printf(const char* fmt, ...)
             c++;
         }
         c++;
-
+        bool to_lower = false;
         switch (*c)
         {
             case 'b':
@@ -137,6 +149,7 @@ void printf(const char* fmt, ...)
                 char string[20];
                 char* str = string;
                 itoa(value, str, 2);
+                printf("0b");
                 while (*str != '\0')
                 {
                     terminal_PrintChar(*str);
@@ -146,7 +159,7 @@ void printf(const char* fmt, ...)
             }
             case 'c':
             {
-                char _c = va_arg(args, char);
+                char _c = va_arg(args, int);
                 terminal_PrintChar(_c);
                 break;
             }
@@ -182,6 +195,7 @@ void printf(const char* fmt, ...)
                 char string[20];
                 char* str = string;
                 itoa(value, str, 8);
+                terminal_PrintChar('0');
                 while (*str != '\0')
                 {
                     terminal_PrintChar(*str);
@@ -220,14 +234,18 @@ void printf(const char* fmt, ...)
                 }
                 break;
             }
-            case 'x':
+            case 'x': 
             {
                 uint64_t value = va_arg(args, uint64_t);
                 char string[20];
+
                 char* str = string;
                 itoa(value, str, 16);
+                //printf("0x");
                 while (*str != '\0')
                 {
+                    //if (to_lower && *str >= 'A' && *str <= 'Z') c += 32;
+                    //else if (!to_lower && *str >= 'a' && *str <= 'z') c -= 32;
                     terminal_PrintChar(*str++);
                 }
                 break;

@@ -3,7 +3,7 @@ use16
 section .entry
     jmp stage2_entry
 global stage2_entry
-extern _start
+extern stage2_main
 section .text
 %include 'cpu_mode.inc'
 
@@ -38,8 +38,8 @@ use32
     mov es, ax
     mov ss, ax
  
-    push byte 0x41
-    call _start
+    push dx
+    call stage2_main
     mov eax, 0xb8000
     mov ebx, 0x0441
     mov [eax], ebx

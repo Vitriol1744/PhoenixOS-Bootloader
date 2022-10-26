@@ -6,6 +6,7 @@
 
 size_t strlen(const char* str);
 int strcmp(const char* lhs, const char* rhs);
+int strncmp(const char* lhs, const char* rhs, size_t n);
 void* memset(void* dest, int c, size_t n);
 void* memcpy(void* dest, const void* src, size_t bytes);
 

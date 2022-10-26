@@ -59,7 +59,6 @@ int32_t echfs_open(file_handle_t* handle, uint8_t drive, uint8_t partition_chs[3
 
     if (!strcmp((char*)dir_entry->name, filename))
     {
-        printf("File found!\n");
         handle->file_lba = dir_entry->starting_block + partition_lba;
         handle->size = dir_entry->file_size;
     }

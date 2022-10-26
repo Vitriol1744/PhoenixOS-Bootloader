@@ -10,6 +10,16 @@ static uint8_t x = 0;
 static uint8_t y = 0;
 static uint8_t color = 0;
 
+static void setCursor(uint16_t x, uint16_t y)
+{
+    uint16_t pos = y * TERMINAL_WIDTH + x;
+ 
+	outb(0x3d4, 0x0f);
+	outb(0x3d5, (uint8_t) (pos & 0xff));
+	outb(0x3d4, 0x0e);
+	outb(0x3d5, (uint8_t) ((pos >> 8) & 0xff));
+}
+
 void terminal_Initialize(void)
 {
     // Set font color(0x02 - Green)
@@ -24,6 +34,17 @@ void terminal_Initialize(void)
 
     y = pos / TERMINAL_WIDTH;
     x = pos % TERMINAL_WIDTH;
+
+    uint16_t* last_character = video_memory + (y * TERMINAL_WIDTH + x);
+
+    uint16_t* vga = video_memory + (8 * TERMINAL_WIDTH);
+
+    while (vga < last_character)
+    {
+        char c = *vga;
+        *vga = 0x03 << 8 | c;
+        vga++;
+    }
 }
 
 void terminal_PrintString(const char* str, size_t length)
@@ -38,9 +59,15 @@ void terminal_PrintChar(char c)
 {
     switch (c)
     {
-        case '\a': break;
-        case '\b': break;
-        case '\n': y++; break;
+        case '\n': 
+        {
+            if (++y >= TERMINAL_HEIGHT)
+            {
+                terminal_ScrollDown(1);
+                y = TERMINAL_HEIGHT - 1;
+            }
+            break;
+        }
         case '\r': x = 0; break;
 
         default: 
@@ -51,24 +78,26 @@ void terminal_PrintChar(char c)
                 if (++y >= TERMINAL_HEIGHT)
                 {
                     terminal_ScrollDown(1);
-                    color = 0x04;
                     y = TERMINAL_HEIGHT - 1;
                 }
             }
             break;
     }
+    setCursor(x, y);
 }
 void terminal_ScrollDown(uint8_t lines)
 {
     while (lines > 0)
     {
-        for (size_t i = 0; i < TERMINAL_WIDTH * TERMINAL_HEIGHT - 1 - TERMINAL_WIDTH; i++)
+        for (size_t i = 0; i < TERMINAL_WIDTH * TERMINAL_HEIGHT - TERMINAL_WIDTH; i++)
             video_memory[i] = video_memory[i + TERMINAL_WIDTH];
 
         uint16_t* video_memory_end = video_memory + TERMINAL_WIDTH * TERMINAL_HEIGHT * 2 - TERMINAL_WIDTH * 2;
-        uint16_t* c = video_memory_end - TERMINAL_WIDTH * 2;
+        uint16_t* c = video_memory_end - TERMINAL_WIDTH;
         while (c < video_memory_end) *c++ = ' ';
 
         lines--;
     }
 }
+
+void terminal_SetColor(uint8_t _color) { color = _color; }
