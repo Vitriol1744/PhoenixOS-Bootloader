@@ -1,4 +1,4 @@
-%macro GO_REAL_MODE 0
+%macro GoRealMode 0
     jmp word 0x18:.entry16
 
 use16
@@ -24,7 +24,7 @@ use16
 %endmacro
 
 
-%macro GO_PROTECTED_MODE 0
+%macro GoProtectedMode 0
     cli
 
     mov eax, cr0

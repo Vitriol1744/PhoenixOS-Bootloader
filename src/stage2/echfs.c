@@ -41,7 +41,7 @@ int32_t echfs_open(file_handle_t* handle, uint8_t drive, uint8_t partition_chs[3
     uint8_t buffer[512];
     identity_table_t* identity_table = (identity_table_t*)buffer;
     read_sectors(drive, cylinder, sector, head, 1, &buffer);
-    if (strcmp(identity_table->signature, ECHFS_SIGNATURE)) return -1;
+    if (strcmp((char*)identity_table->signature, ECHFS_SIGNATURE)) return -1;
 
     uint32_t allocation_table_offset = 16;
     uint32_t allocation_table_size = (identity_table->total_block_count * sizeof(uint64_t) + 512 - 1) / 512;
@@ -54,8 +54,8 @@ int32_t echfs_open(file_handle_t* handle, uint8_t drive, uint8_t partition_chs[3
 
     chs(main_directory_offset + partition_lba, &dir_cylinder, &dir_sector, &dir_head);
 
-    read_sectors(drive, dir_cylinder, dir_sector, dir_head, 1, (void*)0x20000);
-    directory_entry_t* dir_entry = (directory_entry_t*)0x20000;
+    read_sectors(drive, dir_cylinder, dir_sector, dir_head, 1, (void*)0x30000);
+    directory_entry_t* dir_entry = (directory_entry_t*)0x30000;
 
     if (!strcmp((char*)dir_entry->name, filename))
     {

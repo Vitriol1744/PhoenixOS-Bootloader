@@ -10,9 +10,9 @@ static uint8_t x = 0;
 static uint8_t y = 0;
 static uint8_t color = 0;
 
-static void setCursor(uint16_t x, uint16_t y)
+static void setCursor(uint16_t xpos, uint16_t ypos)
 {
-    uint16_t pos = y * TERMINAL_WIDTH + x;
+    uint16_t pos = ypos * TERMINAL_WIDTH + xpos;
  
 	outb(0x3d4, 0x0f);
 	outb(0x3d5, (uint8_t) (pos & 0xff));
@@ -32,17 +32,26 @@ void terminal_Initialize(void)
     outb(0x3D4, 0x0E);
     pos |= ((uint16_t)inb(0x3D5)) << 8;
 
-    y = pos / TERMINAL_WIDTH;
+    y = (uint8_t)(pos / TERMINAL_WIDTH);
     x = pos % TERMINAL_WIDTH;
 
-    uint16_t* last_character = video_memory + (y * TERMINAL_WIDTH + x);
+    uint16_t* last_character = video_memory + ((y - 2) * TERMINAL_WIDTH + x);
 
     uint16_t* vga = video_memory + (8 * TERMINAL_WIDTH);
 
+    uint8_t _color = 0x03;
     while (vga < last_character)
     {
-        char c = *vga;
-        *vga = 0x03 << 8 | c;
+        char c = (char)(*vga);
+
+        *vga = (uint16_t)(_color << 8 | c);
+        vga++;
+    }
+    last_character += 2 * TERMINAL_WIDTH + x;
+    while (vga < last_character)
+    {
+        char c = (char)(*vga);
+        *vga = (uint16_t)(color << 8 | c);
         vga++;
     }
 }
@@ -71,7 +80,7 @@ void terminal_PrintChar(char c)
         case '\r': x = 0; break;
 
         default: 
-            video_memory[y * TERMINAL_WIDTH + x] = color << 8 | c;
+            video_memory[y * TERMINAL_WIDTH + x] = (uint16_t)(color << 8 | c);
             if (++x >= TERMINAL_WIDTH)
             {
                 x = 0;

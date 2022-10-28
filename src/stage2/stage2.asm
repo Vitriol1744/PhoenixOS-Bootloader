@@ -16,6 +16,12 @@ stage2_entry:
     mov sp, 0x7c00
     mov bp, sp
 
+    ; print new line character
+    mov al, 0xd
+    call print_char
+    mov al, 0xa
+    call print_char
+
     mov si, stage2_main_str
     call print_string
     call enable_a20
@@ -66,5 +72,3 @@ on_failure:
 stage2_main_str: db "[BOOT]: PhoenixOS Bootloader - Stage Two", endl, 0x0
 a20_success_str: db "[BOOT]: Successfully enabled a20 gate.", endl, 0x0
 a20_failure_str: db "[BOOT]: Failed to enable a20 gate!", endl, 0x0
-
-align 512

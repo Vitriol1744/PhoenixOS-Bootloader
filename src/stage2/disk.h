@@ -12,9 +12,9 @@ uint16_t disk_GetHeadCount(void);
 
 inline static void chs(uint32_t lba, uint16_t* cylinder, uint16_t* sector, uint16_t* head)
 {
-    *sector = lba % disk_GetSectorCount() + 1;
-    *cylinder = (lba / disk_GetSectorCount()) / disk_GetHeadCount();
-    *head = (lba / disk_GetSectorCount()) % disk_GetHeadCount();
+    *sector = (uint16_t)(lba % disk_GetSectorCount() + 1);
+    *cylinder = (uint16_t)((lba / disk_GetSectorCount()) / disk_GetHeadCount());
+    *head = (uint16_t)((lba / disk_GetSectorCount()) % disk_GetHeadCount());
 }
 
 inline static uint32_t lba(uint16_t cylinder, uint16_t sector, uint16_t head)

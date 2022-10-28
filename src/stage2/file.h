@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    uint32_t drive;
+    uint8_t drive;
     uint32_t file_lba;
     uint32_t size;
 } file_handle_t;

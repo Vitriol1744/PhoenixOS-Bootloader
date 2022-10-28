@@ -1,3 +1,4 @@
+use32
 %include 'cpu_mode.inc'
 
 %macro LinearToSegOffset 4
@@ -16,7 +17,7 @@ get_drive_parameters:
     push ebp
     mov ebp, esp
 
-    GO_REAL_MODE
+    GoRealMode
 
     ; save non-scratch registers
     push es
@@ -65,7 +66,7 @@ get_drive_parameters:
 
     ; return value
     push eax
-    GO_PROTECTED_MODE
+    GoProtectedMode
     pop eax
 
     ; restore stack frame
@@ -78,7 +79,7 @@ read_sectors:
     push ebp             
     mov ebp, esp
 
-    GO_REAL_MODE
+    GoRealMode
 
     push ebx
     push es
@@ -113,7 +114,7 @@ read_sectors:
 
     push eax
 
-    GO_PROTECTED_MODE
+    GoProtectedMode
 
     pop eax
 

@@ -8,4 +8,6 @@ void terminal_PrintString(const char* str, size_t length);
 void terminal_PrintChar(char c);
 void terminal_ScrollDown(uint8_t lines);
 
+void terminal_SetColor(uint8_t _color);
+
 #endif // PHOENIXOS_BOOT_PRINT_H

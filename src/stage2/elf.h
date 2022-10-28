@@ -61,6 +61,19 @@ typedef struct
     uint16_t section_names_header_index;
 } elf64_header_t;
 
-int32_t elf32_load(uint8_t* elf, uintptr_t* entry_point);
+typedef struct
+{
+    uint32_t type;
+    uint32_t flags;
+    uint64_t offset;
+    uint64_t virtual_address;
+    uint64_t physical_address;
+    uint64_t file_size;
+    uint64_t memory_size;
+    uint64_t alignment;
+} elf64_program_header_t;
+
+int32_t elf32_Load(uint8_t* elf, uint64_t* kernel_physical_address, uint64_t* kernel_virtual_address);
+int32_t elf64_Load(uint8_t* elf, uint64_t* kernel_physical_address, uint64_t* kernel_virtual_address);
 
 #endif // PHOENIXOS_BOOT_ELF_H

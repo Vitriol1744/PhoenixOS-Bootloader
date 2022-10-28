@@ -19,7 +19,7 @@ typedef struct
 {
     uint8_t data[446];
     mbr_partition_table_entry_t entries[4];
-} __attribute__((packed)) mbr_t;
+} mbr_t;
 
 int32_t fopen(file_handle_t* handle, uint8_t drive, uint8_t partition_index, const char* filename)
 {
@@ -37,7 +37,7 @@ int32_t fread(file_handle_t* handle, void* buffer, uint32_t bytes)
     uint16_t file_sector;
     uint16_t file_head;
     chs(handle->file_lba, &file_cylinder, &file_sector, &file_head);
-    read_sectors(handle->drive, file_cylinder, file_sector, file_head, handle->size / 512 + 1, (void*)0x20000);
+    read_sectors(handle->drive, file_cylinder, file_sector, file_head, (uint8_t)(handle->size / 512 + 1), (void*)0x20000);
 
     memcpy(buffer, (void*)0x20000, bytes);
     return 0;

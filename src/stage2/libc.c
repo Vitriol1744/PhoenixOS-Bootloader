@@ -39,7 +39,7 @@ int strncmp(const char* lhs, const char* rhs, size_t n)
 
     return 0;
 }
-void* memset(void* dest, int c, size_t n)
+void* memset(void* dest, char c, size_t n)
 {
     void* ret = dest;
     while (n > 0)
@@ -82,7 +82,7 @@ int atoi(const char* str)
     return ret;
 }
 
-char* itoa(int value, char* str, int base)
+char* itoa(int32_t value, char* str, int base)
 {
     int i = 0;
     bool is_negative = false;
@@ -148,7 +148,7 @@ void printf(const char* fmt, ...)
                 uint64_t value = va_arg(args, uint64_t);
                 char string[20];
                 char* str = string;
-                itoa(value, str, 2);
+                itoa((int32_t)value, str, 2);
                 printf("0b");
                 while (*str != '\0')
                 {
@@ -168,7 +168,7 @@ void printf(const char* fmt, ...)
                 uint64_t value = va_arg(args, uint64_t);
                 char string[20];
                 char* str = string;
-                itoa(value, str, 10);
+                itoa((int32_t)value, str, 10);
                 while (*str != '\0')
                 {
                     terminal_PrintChar(*str);
@@ -181,7 +181,7 @@ void printf(const char* fmt, ...)
                 int64_t value = va_arg(args, int64_t);
                 char string[20];
                 char* str = string;
-                itoa(value, str, 10);
+                itoa((int32_t)value, str, 10);
                 while (*str != '\0')
                 {
                     terminal_PrintChar(*str);
@@ -194,7 +194,7 @@ void printf(const char* fmt, ...)
                 uint64_t value = va_arg(args, uint64_t);
                 char string[20];
                 char* str = string;
-                itoa(value, str, 8);
+                itoa((int32_t)value, str, 8);
                 terminal_PrintChar('0');
                 while (*str != '\0')
                 {
@@ -226,7 +226,7 @@ void printf(const char* fmt, ...)
                 uint64_t value = va_arg(args, uint64_t);
                 char string[20];
                 char* str = string;
-                itoa(value, str, 10);
+                itoa((int32_t)value, str, 10);
                 while (*str != '\0')
                 {
                     terminal_PrintChar(*str);
@@ -240,7 +240,7 @@ void printf(const char* fmt, ...)
                 char string[20];
 
                 char* str = string;
-                itoa(value, str, 16);
+                itoa((int32_t)value, str, 16);
                 //printf("0x");
                 while (*str != '\0')
                 {
