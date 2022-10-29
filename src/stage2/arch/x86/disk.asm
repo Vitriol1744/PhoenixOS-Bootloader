@@ -2,21 +2,38 @@ use32
 %include 'cpu_mode.inc'
 
 %macro LinearToSegOffset 4
-
     mov %3, %1      ; linear address to eax
     shr %3, 4
     mov %2, %4
     mov %3, %1      ; linear address to eax
     and %3, 0xf
-
 %endmacro
+
+global disk_reset
+disk_reset:
+    enter 0, 0
+    GoRealMode
+
+    mov ah, 0
+    ; drive number
+    mov dl, [bp + 8]
+    stc
+    int 0x13
+
+    ; return value
+    mov eax, 1
+    sbb eax, 0
+
+    push eax
+    GoProtectedMode
+    pop eax
+
+    leave
+    ret
 
 global get_drive_parameters
 get_drive_parameters:
-    ; save stack frame
-    push ebp
-    mov ebp, esp
-
+    enter 0, 0
     GoRealMode
 
     ; save non-scratch registers
@@ -69,15 +86,12 @@ get_drive_parameters:
     GoProtectedMode
     pop eax
 
-    ; restore stack frame
-    mov esp, ebp
-    pop ebp
+    leave
     ret
 
 global read_sectors
 read_sectors:
-    push ebp             
-    mov ebp, esp
+    enter 0, 0
 
     GoRealMode
 
@@ -103,11 +117,14 @@ read_sectors:
     mov ah, 0x02
     stc
     int 0x13
+    push eax
 
-    ; set return value
-    mov eax, 1
-    sbb eax, 0
+    mov eax, 0
+    jc .done
 
+    ; if successful, set return value to the number of sectors transferred
+    pop eax
+.done:
     ; restore regs
     pop es
     pop ebx
@@ -118,6 +135,5 @@ read_sectors:
 
     pop eax
 
-    mov esp, ebp
-    pop ebp
+    leave
     ret
