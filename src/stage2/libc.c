@@ -18,36 +18,36 @@ size_t strlen(const char* str)
 }
 int strcmp(const char* lhs, const char* rhs)
 {
-    while (*lhs != '\0' && *rhs != '\0' && *rhs == *lhs)
+    while((*lhs != '\0' && *rhs != '\0' ) && *lhs == *rhs)
     {
-        ++rhs;
-        ++lhs;
+        lhs++;
+        rhs++;
     }
-    if (*(lhs) != *(rhs)) return *lhs - *rhs;
 
-    return 0;
+    if (*lhs == *rhs) return 0;        
+    return *lhs - *rhs;
 }
 int strncmp(const char* lhs, const char* rhs, size_t n)
 {
-    while (*rhs == *lhs && n > 0)
+    while (n > 0 && *lhs != '\0' && ( *lhs == *rhs))
     {
-        ++rhs;
         ++lhs;
+        ++rhs;
         --n;
     }
-    if (*(lhs-1) != *(rhs-1)) return *lhs - *rhs;
-
-    return 0;
+    if (n == 0) return 0;
+    return *(char*)lhs - *(char *)rhs;
 }
 void* memset(void* dest, char c, size_t n)
 {
-    void* ret = dest;
+    char* d = (char*)dest;
     while (n > 0)
     {
-        *(char*)dest++ = c;
+        *d++ = c;
         n--;
     }
-    return ret;
+
+    return dest;
 }
 void* memcpy(void* dest, const void* src, size_t bytes)
 {
@@ -103,7 +103,7 @@ char* itoa(int32_t value, char* str, int base)
     while (value != 0)
     {
         int rem = value % base;
-        str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        str[i++] = (rem > 9) ? (char)((rem - 10) + 'a') : (char)(rem + '0');
         value = value / base;
     }
   
@@ -140,7 +140,7 @@ void printf(const char* fmt, ...)
             c++;
         }
         c++;
-        bool to_lower = false;
+        
         switch (*c)
         {
             case 'b':
@@ -159,7 +159,7 @@ void printf(const char* fmt, ...)
             }
             case 'c':
             {
-                char _c = va_arg(args, int);
+                char _c = (char)va_arg(args, int);
                 terminal_PrintChar(_c);
                 break;
             }

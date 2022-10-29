@@ -13,7 +13,8 @@ TARGET_ARCH ?= i386-none
 INC_DIRS := $(SRC_DIR) $(SRC_DIR)/stage2
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS := -std=c99 -target $(TARGET_ARCH) $(INC_FLAGS) -Weverything -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -fshort-wchar -mno-red-zone -masm=intel -mno-sse -mno-sse2 -mno-mmx -mno-80387
+WARNING_LEVEL := -Wall -Wextra -Wpedantic -Wgnu-binary-literal
+CFLAGS := -std=c17 -target $(TARGET_ARCH) $(INC_FLAGS) $(WARNING_LEVEL) -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -fshort-wchar -mno-red-zone -masm=intel -mno-sse -mno-sse2 -mno-mmx -mno-80387
 ASFLAGS := $(INC_FLAGS) -felf32
 LDFLAGS := -nostdlib -no-pie -melf_i386 -s -T linker.ld
 

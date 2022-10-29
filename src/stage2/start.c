@@ -1,6 +1,6 @@
-#include "disk.h"
+#include "partition.h"
 #include "elf.h"
-#include "file.h"
+#include "filesystem/file.h"
 #include "io.h"
 #include "pmm.h"
 #include "terminal.h"
@@ -16,7 +16,6 @@ extern void* __bss_start[];
 extern void* __bss_end[];
 
 static uint64_t* pml4;
-uint64_t kernel_func = 0xffffffff80000000;
 
 static void mapPage(uint64_t virtual_address, uint64_t physical_address);
 static void setupPaging(void)
@@ -40,8 +39,8 @@ static uint64_t* getNextLevel(uint64_t* level, uint64_t next_level_index)
 		return (uint64_t*)(level[next_level_index] & ~((uintptr_t) 0xfff));
 	}
 
-	const uintptr_t next_level = (uintptr_t) pmm_CallocateAligned(4096, 0x1000);
-	level[next_level_index] = next_level | 0b11;
+	const uint64_t* next_level = (uint64_t*)pmm_CallocateAligned(4096, 0x1000);
+	level[next_level_index] = (uint64_t)next_level | 0b11;
 
     uint64_t* ret = (uint64_t*)(level[next_level_index] & ~((uintptr_t) 0xFFF));
 	return ret;
@@ -59,8 +58,6 @@ static void mapPage(uint64_t virtual_address, uint64_t physical_address)
     uint64_t* pml1 = getNextLevel(pml2, pml2_entry);
 
     pml1[pml1_entry] = physical_address | 3;
-    //printf("pml1[0]: %x\n", pml1[pml1_entry]);
-    //__asm__("hlt");
 }
 
 extern __attribute__((cdecl)) void go_long_mode(uint64_t);
@@ -89,6 +86,7 @@ static bool         cpuid_IsSupported(void)
  //stops simulation and breaks into the debug console
  #define BochsBreak() outportw(0x8A00,0x8A00); outportw(0x8A00,0x08AE0);
 
+void stage2_main(uint8_t drive); // to suppress missing prototype warning
 void stage2_main(uint8_t drive)
 {
     // Clear out .bss section
@@ -97,21 +95,33 @@ void stage2_main(uint8_t drive)
 
     terminal_Initialize();
     pmm_Initialize();
-    disk_Initialize();
 
-    printf("[BOOT]: Drive: 0x%x\n", drive);
+    disk_t disk;
+    disk_Initialize(&disk, drive);
+
+    partition_t part;
+    partition_Initialize(&part, &disk, 0);
+
+    printf("[BOOT]: Drive: 0x%x\n", disk.drive_index);
     file_handle_t file;
-    if (fopen(&file, drive, 0, "kernel.elf"))
+    file_handle_t file2;
+    if (fopen(&file, &part, "kernel.elf"))
         printf("[BOOT]: Failed to open kernel.elf!\n");
+    if (fopen(&file2, &part, "kernel.txt"))
+        printf("[BOOT]: Failed to open kernel.txt!\n");
 
-    uint8_t* kernel = (uint8_t*)pmm_Allocate(file.size);
+    uint8_t* kernel = (uint8_t*)pmm_Allocate((size_t)file.size);
     fread(&file, kernel, file.size);
 
     uint64_t kernel_physical_address, kernel_virtual_address;
-    elf64_Load(kernel, &kernel_physical_address, &kernel_virtual_address);
+    uint32_t kernel_size = (uint32_t)elf64_Load(kernel, &kernel_physical_address, &kernel_virtual_address);
 
     setupPaging();
-    mapPage(kernel_virtual_address, kernel_physical_address);
+    for (uint32_t i = 0; i < kernel_size / 0x1000 + 1; i++)
+    {
+        mapPage(kernel_virtual_address + i * 0x1000, kernel_physical_address + i * 0x1000);
+    }
+
     printf("[BOOT]: Kernel entrypoint: 0x%x\n", kernel_virtual_address);
 
     printf("[BOOT]: Paging has been enabled!\n");
