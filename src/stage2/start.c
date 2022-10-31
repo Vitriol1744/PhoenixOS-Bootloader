@@ -4,6 +4,7 @@
 #include "io.h"
 #include "pmm.h"
 #include "terminal.h"
+#include "memory_map.h"
 
 #include "libc.h"
 
@@ -81,6 +82,15 @@ static bool         cpuid_IsSupported(void)
     return ret;
 }
 
+void panic(char *message) {
+    printf("[PANIC]: %s\r\n", message);
+    
+    for(;;) {
+        __asm__("cli");
+        __asm__("hlt");
+    }
+}
+
  //outputs a character to the debug console
  #define BochsConsolePrintChar(c) outportb(0xe9, c)
  //stops simulation and breaks into the debug console
@@ -105,10 +115,19 @@ void stage2_main(uint8_t drive)
     printf("[BOOT]: Drive: 0x%x\n", disk.drive_index);
     file_handle_t file;
     file_handle_t file2;
+
+    SMAP_entry_t Entries[16] = {0};
+
+    get_memory_map(Entries);
+    printf("[BOOT]: Memory Map entry count: %d\n", mmap_entry_count);
+
+    for (int i = 0; i < mmap_entry_count; i++)
+        printf("[REGION]: Base: 0x%x Length: 0x%x Type: 0x%x\n", Entries[i].Base, Entries[i].Length, Entries[i].Type);
+
     if (fopen(&file, &part, "kernel.elf"))
-        printf("[BOOT]: Failed to open kernel.elf!\n");
+        panic("Failed to open kernel.elf!\n");
     if (fopen(&file2, &part, "kernel.txt"))
-        printf("[BOOT]: Failed to open kernel.txt!\n");
+        panic("Failed to open kernel.txt!\n");
 
     uint8_t* kernel = (uint8_t*)pmm_Allocate((size_t)file.size);
     fread(&file, kernel, file.size);
