@@ -87,6 +87,16 @@ static bool         cpuid_IsSupported(void)
     return ret;
 }
 
+void panic(char *message) 
+{
+    printf("[PANIC]: %s\r\n", message);
+    
+    for(;;) {
+        __asm__("cli");
+        __asm__("hlt");
+    }
+}
+
 extern uint8_t* font_data;
 noreturn void bootPhoenixOS()
 {
@@ -107,7 +117,7 @@ noreturn void bootPhoenixOS()
             partition_Initialize(&part, disk, 0);
 
             LogInfo("Drive: 0x%x", disk->drive_index);
-            if (fopen(&kernel_file, &part, PHOS_KERNEL_FILE_NAME) == 0) LogFatal("Failed to open %s!", PHOS_KERNEL_FILE_NAME);
+            if (fopen(&kernel_file, &part, PHOS_KERNEL_FILE_NAME) == 0) panic("Failed to open kernel.elf!\n");
             else goto kernel_found;
         }
     }
