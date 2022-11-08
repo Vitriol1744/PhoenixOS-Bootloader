@@ -1,5 +1,5 @@
-#ifndef PHOENIXOS_BOOT_ARCH_H
-#define PHOENIXOS_BOOT_ARCH_H
+#ifndef PHOENIXOS_BOOTLOADER__ARCH_H
+#define PHOENIXOS_BOOTLOADER__ARCH_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -35,4 +35,4 @@ bool __attribute__((cdecl)) get_drive_parameters(uint8_t drive, uint8_t* drive_t
  */
 int __attribute__((cdecl)) read_sectors(uint8_t drive, uint16_t cylinder, uint16_t sector, uint16_t head, uint8_t count, void* buffer);
 
-#endif // PHOENIXOS_BOOT_ARCH_H
+#endif // PHOENIXOS_BOOTLOADER__ARCH_H

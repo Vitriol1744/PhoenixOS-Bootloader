@@ -2,13 +2,13 @@ use32
 
 global go_long_mode
 go_long_mode:
-    call enable_paging64
+    call enable_paging
     lgdt [gdt64.pointer]
 
     pop ebx ; discard return address
     jmp gdt64.code:long_mode_start
 
-enable_paging64:
+enable_paging:
     ; enable PAE
     mov eax, cr4
     or eax, 1 << 5
@@ -30,7 +30,7 @@ enable_paging64:
 use64
 long_mode_start:
     ; set up segment registers
-    mov ax, 0
+    xor ax, ax
     mov ss, ax
     mov ds, ax
     mov es, ax
@@ -38,12 +38,11 @@ long_mode_start:
     mov gs, ax
 
     ; load kernel entrypoint
-    pop rbx 
-    ; set up stack
-    mov rsp, 0x7c00
-    
+    pop rbx
+    pop rax
+    mov rdi, rax
     ; jump to kernel
-    jmp rbx
+    call rbx
 
 section .rodata
 ; 64 bit GDT

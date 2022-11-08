@@ -10,11 +10,11 @@ LD ?= ld
 
 TARGET_ARCH ?= i386-none
 
-INC_DIRS := $(SRC_DIR) $(SRC_DIR)/stage2
+INC_DIRS := $(SRC_DIR) $(SRC_DIR)/stage2 ./include
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-WARNING_LEVEL := -Wall -Wextra -Wpedantic -Wgnu-binary-literal
-CFLAGS := -std=c17 -target $(TARGET_ARCH) $(INC_FLAGS) $(WARNING_LEVEL) -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -fshort-wchar -mno-red-zone -masm=intel -mno-sse -mno-sse2 -mno-mmx -mno-80387
+WARNING_LEVEL := -Wno-gnu-zero-variadic-macro-arguments -Wall -Wextra -Wpedantic -Wgnu-binary-literal
+CFLAGS := -DPH_DEBUG -std=c17 -target $(TARGET_ARCH) $(INC_FLAGS) $(WARNING_LEVEL) -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -fshort-wchar -mno-red-zone -masm=intel -mno-sse -mno-sse2 -mno-mmx -mno-80387
 ASFLAGS := $(INC_FLAGS) -felf32
 LDFLAGS := -nostdlib -no-pie -melf_i386 -s -T linker.ld
 
@@ -22,7 +22,7 @@ SRCS := $(shell find $(SRC_DIR)/stage2 -name '*.c' -or -name '*.asm')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 $(BUILD_DIR)/bootloader.bin: $(BUILD_DIR)/stage2.bin
-	nasm -i$(BUILD_DIR) -i$(SRC_DIR)/stage2 $(SRC_DIR)/stage1.asm -o $@
+	nasm -i$(BUILD_DIR) -i$(SRC_DIR) $(SRC_DIR)/stage1.asm -o $@
 
 $(BUILD_DIR)/stage2.bin: $(OBJS) linker.ld
 	$(LD) $(OBJS) -o $@ $(LDFLAGS)

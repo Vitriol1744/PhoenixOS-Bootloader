@@ -29,7 +29,7 @@ int strcmp(const char* lhs, const char* rhs)
 }
 int strncmp(const char* lhs, const char* rhs, size_t n)
 {
-    while (n > 0 && *lhs != '\0' && ( *lhs == *rhs))
+    while (n > 0 && *lhs != '\0' && (*lhs == *rhs))
     {
         ++lhs;
         ++rhs;
@@ -124,11 +124,9 @@ char* itoa(int32_t value, char* str, int base)
     return str;
 }
 
-void printf(const char* fmt, ...)
+void printf(const char* fmt, va_list args)
 {
     char* c;
-    va_list args;
-    va_start(args, fmt);
 
     for (c = (char*)fmt; *c != '\0'; c++)
     {
@@ -149,7 +147,6 @@ void printf(const char* fmt, ...)
                 char string[20];
                 char* str = string;
                 itoa((int32_t)value, str, 2);
-                printf("0b");
                 while (*str != '\0')
                 {
                     terminal_PrintChar(*str);
@@ -253,5 +250,5 @@ void printf(const char* fmt, ...)
         }
     }
 loop_end:
-    va_end(args);
+    return;
 }

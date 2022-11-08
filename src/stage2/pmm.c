@@ -1,16 +1,18 @@
 #include "pmm.h"
 
-#include "libc.h"
+#include "lib/libc.h"
 
 static uintptr_t allocator_base;
 static uintptr_t below1m_base;
 static uintptr_t below1m_top;
 
+uint16_t stage2_size = 0x4000;
+
 void pmm_Initialize(void) 
 { 
-    below1m_base = 0x30000;
+    below1m_base = 0x10000 + stage2_size;
     allocator_base = 0x100000; 
-    below1m_top = 0x0007FFFF; 
+    below1m_top = 0x0007FFFF;
 }
 void* pmm_Allocate(size_t bytes)
 {

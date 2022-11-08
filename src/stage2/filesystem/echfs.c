@@ -1,9 +1,11 @@
 #include "echfs.h"
 
-#include "libc.h"
-#include "pmm.h"
-#include "disk.h"
+#include "drivers/disk.h"
 
+#include "lib/libc.h"
+#include "lib/log.h"
+
+#include "pmm.h"
 
 #define ECHFS_SIGNATURE "_ECH_FS_"
 
@@ -71,14 +73,14 @@ int32_t echfs_OpenFile(file_handle_t* handle, partition_t* part, const char* fil
         disk_Read(part->disk, dir_entry, offset, sizeof(directory_entry_t));
         if (!strcmp((char*)dir_entry->name, filename))
         {
-            printf("filename %s\n", dir_entry->name);
+            LogTrace("Found file, filename: %s", dir_entry->name);
             handle->file_lba = dir_entry->starting_block;
             handle->size = dir_entry->file_size;
 
-            return 0;
+            return 1;
         }
     }
-    return -1;
+    return 0;
 }
 int32_t echfs_Read(file_handle_t* handle, void* buffer, size_t bytes)
 {

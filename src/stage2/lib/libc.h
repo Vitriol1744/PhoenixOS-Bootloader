@@ -1,6 +1,7 @@
-#ifndef PHOENIXOS_BOOT_LIBC_H
-#define PHOENIXOS_BOOT_LIBC_H
+#ifndef PHOENIXOS_BOOTLOADER__LIBC_H
+#define PHOENIXOS_BOOTLOADER__LIBC_H
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -13,7 +14,7 @@ void* memcpy(void* dest, const void* src, size_t bytes);
 int atoi(const char* str);
 char* itoa(int32_t value, char* str, int base);
 
-void printf(const char* fmt, ...);
+void printf(const char* fmt, va_list args);
 
-#endif // PHOENIXOS_BOOT_LIBC_H
+#endif // PHOENIXOS_BOOTLOADER__LIBC_H
 

@@ -1,5 +1,5 @@
-#ifndef PHOENIXOS_BOOT_PMM_H
-#define PHOENIXOS_BOOT_PMM_H
+#ifndef PHOENIXOS_BOOTLOADER__PMM_H
+#define PHOENIXOS_BOOTLOADER__PMM_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -63,4 +63,4 @@ void* pmm_AllocateAlignedBelow1M(size_t n, size_t alignment);
  */
 void pmm_FreeBelow1M(size_t n);
 
-#endif // PHOENIXOS_BOOT_PMM_H
+#endif // PHOENIXOS_BOOTLOADER__PMM_H

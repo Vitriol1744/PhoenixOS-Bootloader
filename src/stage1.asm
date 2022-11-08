@@ -98,14 +98,32 @@ load_stage2:
 
 ; carry flag set on error
 .error:
-    mov si, load_stage2_failure_str
+    ;mov si, load_stage2_failure_str
     call print_string
     jmp on_error
 .done:
     mov si, load_stage2_success_str
     call print_string
-    jmp word STAGE2_SEGMENT:STAGE2_OFFSET
-    nop ; should not get here
+    mov ax, stage2_size
+    push ax
+
+enable_a20_bios:
+    ; try to enable a20 using bios interrupt, if it fails we will try to enable a20 using other methods in protecte mode
+    mov ax, 0x2403
+    int 0x15
+    jb switch_to_protected_mode
+    cmp ah, 0
+    jnz switch_to_protected_mode
+    mov ax, 0x2401
+    int 0x15
+
+switch_to_protected_mode:
+    cli
+    lgdt [gdtr]
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax
+    jmp 0x08:protected_mode_main
 
 on_error:
     mov ah, 0x00
@@ -113,10 +131,26 @@ on_error:
     jmp 0xffff:0 ; reboot
 
 %include 'print.inc'
+%include 'gdt.inc'
+
+protected_mode_main:
+use32
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    
+    ; push drive number
+    and dx, 0xff
+    push dx
+    ; push invalid return address
+    push 0x00
+    jmp word 0x08:STAGE2_OFFSET
+    nop ; should not get here
 
 loading_stage2_str: db "[BOOT]: Loading stage2 from disk ", 0x0
 bootloader_name: db "[BOOT]: PhoenixOS Bootloader - Stage One", endl, 0x0
-load_stage2_failure_str: db "[BOOT]: Failed to load stage2", endl, 0x0
+;load_stage2_failure_str: db "[BOOT]: Failed to load stage2", endl, 0x0
 load_stage2_success_str: db "[BOOT]: Successfully loaded stage2 at 0x0000:0x7e00", endl, 0x0
 disk: db 0
 

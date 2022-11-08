@@ -1,7 +1,7 @@
-#ifndef PHOENIXOS_BOOT_PARTITION_H
-#define PHOENIXOS_BOOT_PARTITION_H
+#ifndef PHOENIXOS_BOOTLOADER__PARTITION_H
+#define PHOENIXOS_BOOTLOADER__PARTITION_H
 
-#include "disk.h"
+#include "drivers/disk.h"
 
 struct file_handle_t;
 struct partition_t;
@@ -24,4 +24,4 @@ typedef struct
 
 void partition_Initialize(partition_t* part, disk_t* disk, uint32_t partition_index);
 
-#endif // PHOENIXOS_BOOT_PARTITION_H
+#endif // PHOENIXOS_BOOTLOADER__PARTITION_H

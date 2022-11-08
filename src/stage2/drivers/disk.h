@@ -1,5 +1,5 @@
-#ifndef PHOENIXOS_BOOT_DISK_H
-#define PHOENIXOS_BOOT_DISK_H
+#ifndef PHOENIXOS_BOOTLOADER__DISK_H
+#define PHOENIXOS_BOOTLOADER__DISK_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -14,15 +14,18 @@ typedef struct
     uint16_t total_heads;
 } disk_t;
 
+bool disk_InitializeDrives(uint8_t boot_drive_index);
 /**
- * @brief Initializes disk
+ * @brief Returns pointer to the boot drive
+ * @return Pointer to the boot drive
  */
-void disk_Initialize(disk_t* this, uint8_t drive_index);
+disk_t* disk_GetBootDisk();
 /**
  * @brief Returns number of partitions on disk
  * @return Number of partitions 
  */
-uint32_t disk_GetPartitionCount(void);
+bool disk_Enumerate(disk_t* buffer, size_t* count);
+inline static uint32_t disk_GetPartitionCount(void) { return 1; }
 
 /**
  * @brief Reads data from disk
@@ -52,4 +55,4 @@ inline static uint32_t lba(disk_t* disk, uint16_t cylinder, uint16_t sector, uin
     return (cylinder * disk->total_heads + head) * disk->total_sectors + (sector - 1);
 }
 
-#endif // PHOENIXOS_BOOT_DISK_H
+#endif // PHOENIXOS_BOOTLOADER__DISK_H

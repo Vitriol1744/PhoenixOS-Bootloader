@@ -1,7 +1,10 @@
-#ifndef PHOENIXOS_BOOT_ELF_H
-#define PHOENIXOS_BOOT_ELF_H
+#ifndef PHOENIXOS_BOOTLOADER__ELF_H
+#define PHOENIXOS_BOOTLOADER__ELF_H
 
 #include <stdint.h>
+
+#define ELF_BITNESS_32 1
+#define ELF_BITNESS_64 2
 
 typedef struct
 {
@@ -73,7 +76,30 @@ typedef struct
     uint64_t alignment;
 } __attribute__((packed)) elf64_program_header_t;
 
-uint32_t elf32_Load(uint8_t* elf, uint64_t* kernel_physical_address, uint64_t* kernel_virtual_address);
-uint64_t elf64_Load(uint8_t* elf, uint64_t* kernel_physical_address, uint64_t* kernel_virtual_address);
+/**
+ * @brief Checks elf program bitness
+ * @param elf Pointer to elf data
+ * 
+ * @return Bitness of elf program
+ */
+uint8_t elf_GetBitness(uint8_t* elf);
+/**
+ * @brief Parses elf data of 32 bit program
+ * @param elf Pointer to elf data
+ * @param physical_address The address at which program will be loaded
+ * @param virtual_address The virtual address at which program should be mapped to
+ * 
+ * @return Size of the program on success, 0 on failure
+ */
+uint32_t elf32_Load(uint8_t* elf, uint64_t* physical_address, uint64_t* virtual_address);
+/**
+ * @brief Parses elf data of 64 bit program
+ * @param elf Pointer to elf data
+ * @param physical_address The address at which program will be loaded
+ * @param virtual_address The virtual address at which program should be mapped to
+ * 
+ * @return Size of the program on success, 0 on failure
+ */
+uint64_t elf64_Load(uint8_t* elf, uint64_t* physical_address, uint64_t* virtual_address);
 
-#endif // PHOENIXOS_BOOT_ELF_H
+#endif // PHOENIXOS_BOOTLOADER__ELF_H

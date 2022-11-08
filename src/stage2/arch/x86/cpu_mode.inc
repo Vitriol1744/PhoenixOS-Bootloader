@@ -43,3 +43,13 @@ use16
     mov ss, ax
 
 %endmacro
+
+; Segment = linear >> 4   - (top 16 bits)
+; Offset  = linear & 0x0f - (low 4 bits)
+%macro LinearToSegOffset 4
+    mov %3, %1
+    shr %3, 4
+    mov %2, %4
+    mov %3, %1
+    and %3, 0xf
+%endmacro
